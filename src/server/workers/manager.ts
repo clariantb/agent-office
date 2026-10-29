@@ -27,7 +27,7 @@ import { CARRY_ON_PROMPT, WorkerTasks } from './tasks.js';
 import { flushScreens, fullScreens, newTerm, offlineBanner, screenText, type HeadlessTerminal } from './terminal.js';
 import type { HookEnv, OpenedPr, RepoSource, RunAs, Worker, WorkerContext, WorkerEvents, WorkerHandle } from './types.js';
 import { clamp, safeEq, truncate } from './util.js';
-import { COLORS, NAMES, newWorker } from './worker.js';
+import { COLORS, newWorker, workerName } from './worker.js';
 import { WorkerTrees, lostMessage } from './worktree.js';
 
 const SCREEN_INTERVAL_MS = 250;
@@ -249,12 +249,12 @@ export class WorkerManager {
     if (full) return full;
     const used = new Set([...this.workers.values()].map((w) => w.info.name.replace(/ 🐚$/, '')));
     const agent = seat.station && STATION_AGENT[seat.station];
-    const name = agent ? agent.name : (NAMES.find((n) => !used.has(n)) ?? `Worker ${this.workers.size + 1}`);
+    const name = agent ? agent.name : workerName(used);
     const id = randomBytes(6).toString('hex');
     let wt: WorkerInfo['worktree'] = meeting?.worktree;
     let others: WorkerRepo[] | undefined;
     if (worktree) {
-      const slug = `${name.toLowerCase()}-${id.slice(0, 4)}`;
+      const slug = `${name.toLowerCase().replace(/\s+/g, '-')}-${id.slice(0, 4)}`;
       const made = repos.length ? this.makeWorkspace(slug, repos) : this.trees.create(slug);
       if (typeof made === 'string') return made;
       if ('repos' in made) {

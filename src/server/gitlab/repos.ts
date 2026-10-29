@@ -36,7 +36,8 @@ function glabConfigs(): string[] {
  */
 export function isGitLabHost(host: string): boolean {
   if (/(?:^|[.-])gitlab(?:[.-]|$)/i.test(host)) return true;
-  const entry = new RegExp(`^\\s+${host.replace(/[.]/g, '\\.')}:\\s*$`, 'im');
+  // Its entry under hosts:, in block style (`  gitlab.example.com:` on its own line) or flow style (`  gitlab.example.com: {…}`), its key quoted or not.
+  const entry = new RegExp(`^\\s+["']?${host.replace(/[.]/g, '\\.')}["']?:\\s*(?:\\{.*)?$`, 'im');
   return glabConfigs().some((file) => {
     try {
       return entry.test(readFileSync(file, 'utf8'));

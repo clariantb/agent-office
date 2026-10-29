@@ -6,11 +6,13 @@ import { providerAdapter } from '../providers/index.js';
 import type { UsageTracker } from '../usage.js';
 import type { Worker } from './types.js';
 
-export const NAMES = [
-  'Pixel', 'Byte', 'Nibble', 'Sprocket', 'Widget', 'Gizmo', 'Bolt', 'Cosmo', 'Dot', 'Echo',
-  'Fizz', 'Glitch', 'Hopper', 'Jinx', 'Kilo', 'Lumen', 'Mochi', 'Noodle', 'Orbit', 'Pip',
-  'Quark', 'Rivet', 'Sparky', 'Tofu', 'Uno', 'Volt', 'Waffle', 'Zippy',
-];
+/** A new worker's name: David, then David 2, David 3…, the lowest nobody in `used` has. */
+export function workerName(used: Set<string>): string {
+  let n = 1;
+  while (used.has(n === 1 ? 'David' : `David ${n}`)) n++;
+  return n === 1 ? 'David' : `David ${n}`;
+}
+
 export const COLORS = ['#ff8a5b', '#5bc0eb', '#9bc53d', '#fde74c', '#c3423f', '#b388eb', '#f7aef8', '#72ddf7', '#ffb400', '#00a6a6'];
 
 export function newWorker(info: WorkerInfo, tracker: UsageTracker, hookToken = randomBytes(16).toString('hex')): Worker {

@@ -183,12 +183,15 @@ test("an origin with a token in it is still the project, and the token isn't kep
 
 test("a checkout on a host that isn't a GitLab (GitHub Enterprise) stays with gh", () => {
   const conf = mkdtempSync(path.join(os.tmpdir(), 'glab-'));
-  writeFileSync(path.join(conf, 'config.yml'), 'hosts:\n    code.example.org:\n        token: x\n');
+  // glab writes a host block style, or flow style on one line once it has saved a token there.
+  writeFileSync(path.join(conf, 'config.yml'), 'hosts:\n    code.example.org:\n        token: x\n    code.example.net: {api_host: code.example.net, git_protocol: ssh, token: x}\n');
   const before = process.env.GLAB_CONFIG_DIR;
   process.env.GLAB_CONFIG_DIR = conf;
   try {
     assert.equal(isGitLabHost('gitlab.corp.example'), true);
     assert.equal(isGitLabHost('code.example.org'), true);
+    assert.equal(isGitLabHost('code.example.net'), true);
+    assert.equal(isGitLabHost('example.net'), false);
     assert.equal(isGitLabHost('github.mycorp.com'), false);
     const repo = (url: string) => {
       const dir = mkdtempSync(path.join(os.tmpdir(), 'origin-'));
